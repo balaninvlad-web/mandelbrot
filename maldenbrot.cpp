@@ -1,87 +1,97 @@
-//const float ROI_X = -1.525,
-//            ROI_Y = 0;
-#include <TxLib.h>
-#include <math.h>
+#include <TXLib.h>
+#include <windows.h>
 
-#define HEIGHT  600
 #define WIDTH   800
-#define X_MIN   -2.2f
-#define X_MAX    1.0f
-#define Y_MIN   -1.2f
-#define Y_MAX    1.2f
+#define HEIGHT  600
 
-#define MAX_ITERATION 256
-#define L_MAX 2.0f
+// Границы области
+float X_MIN = -2.2f;
+float X_MAX =  1.0f;
+float Y_MIN = -1.2f;
+float Y_MAX =  1.2f;
 
-COLORREF GetColor (int iteration);
+void DrawFractal ();
+
+// Функция рисования фрактала
+void DrawFractal ()
+{
+    txBegin ();
+    RGBQUAD* buf = txVideoMemory ();
+
+    float dx = (X_MAX - X_MIN) / WIDTH;
+    float dy = (Y_MAX - Y_MIN) / HEIGHT;
+
+    for (int y = 0; y < HEIGHT; y++)
+    {
+        float c_im = Y_MAX - y * dy;
+        for (int x = 0; x < WIDTH; x++)
+        {
+            float c_re = X_MIN + x * dx;
+            
+            float z_re = 0, z_im = 0;
+            int iter = 0;
+            
+            while (iter < 100 && z_re*z_re + z_im*z_im < 4)
+            {
+                float new_re = z_re*z_re - z_im*z_im + c_re;
+                z_im = 2*z_re*z_im + c_im;
+                z_re = new_re;
+                iter++;
+            }
+            
+            // Цвет: оттенки серого
+            int color = iter == 100 ? 0 : 50 + iter * 2;
+            RGBQUAD* p = &buf[y*WIDTH + x];
+            p->rgbRed = p->rgbGreen = p->rgbBlue = color;
+        }
+    }
+    txEnd ();
+}
 
 int main ()
 {
     txCreateWindow (WIDTH, HEIGHT);
-    txTextCursor (false);  // отключаю курсор внутри окна чтобы не мешал
-    txBegin ();
 
-    RGBQUAD* videoBuf = txVideoMemory ();
-    if (!videoBuf)
+    int frameCount = 0;
+    float fps = 0;
+    DWORD lastTime = GetTickCount ();
+    
+    while (!txGetAsyncKeyState (VK_ESCAPE))
     {
-        return -1;
-    }
-
-    float x_range = X_MAX - X_MIN;   // 1.0 - (-2.2) = 3.2
-    float y_range = Y_MAX - Y_MIN;   // 1.2 - (-1.2) = 2.4
-
-    for (int y = 0; y < HEIGHT; y++)
-    {
-        float pos0_im = Y_MAX - (float)y / HEIGHT * y_range;
+        // Управление
+        if (txGetAsyncKeyState (VK_LEFT))  { X_MIN -= 0.1f; X_MAX -= 0.1f; }
+        if (txGetAsyncKeyState (VK_RIGHT)) { X_MIN += 0.1f; X_MAX += 0.1f; }
+        if (txGetAsyncKeyState (VK_DOWN))  { Y_MIN += 0.1f; Y_MAX += 0.1f; }
+        if (txGetAsyncKeyState (VK_UP))    { Y_MIN -= 0.1f; Y_MAX -= 0.1f; }
+        if (txGetAsyncKeyState (VK_UP) && txGetAsyncKeyState (VK_SHIFT))   
+                                           { float cx = (X_MIN+X_MAX)/2, cy = (Y_MIN+Y_MAX)/2;
+                                             X_MIN = cx + (X_MIN-cx)*0.9f; X_MAX = cx + (X_MAX-cx)*0.9f;
+                                             Y_MIN = cy + (Y_MIN-cy)*0.9f; Y_MAX = cy + (Y_MAX-cy)*0.9f; }
+        if (txGetAsyncKeyState (VK_DOWN) && txGetAsyncKeyState (VK_SHIFT)) 
+                                           { float cx = (X_MIN+X_MAX)/2, cy = (Y_MIN+Y_MAX)/2;
+                                             X_MIN = cx + (X_MIN-cx)*1.1f; X_MAX = cx + (X_MAX-cx)*1.1f;
+                                             Y_MIN = cy + (Y_MIN-cy)*1.1f; Y_MAX = cy + (Y_MAX-cy)*1.1f; }
+        if (txGetAsyncKeyState ('R'))      { X_MIN = -2.2f; X_MAX = 1.0f; Y_MIN = -1.2f; Y_MAX = 1.2f; }
         
-        for (int x = 0; x < WIDTH; x++)
+        DrawFractal ();
+                                            
+        frameCount++;
+        DWORD now = GetTickCount ();
+        if (now - lastTime >= 1000)
         {
-            float pos0_re = X_MIN + (float)x / WIDTH * x_range;
-
-            float pos_re = 0.0;
-            float pos_im = 0.0;
-            int iteration = 0;
-
-            while (iteration < MAX_ITERATION)
-            {
-                if (pos_im * pos_im + pos_re * pos_re > L_MAX * L_MAX)
-                {
-                    break;
-                }
-
-                float pos_re_new = pos_re * pos_re - pos_im * pos_im + pos0_re;
-                float pos_im_new = 2.0 * pos_re * pos_im + pos0_im;
-                pos_re = pos_re_new;
-                pos_im = pos_im_new;
-                iteration ++;
-            }
-
-            COLORREF color = GetColor (iteration);
-
-            RGBQUAD* pixel = &videoBuf[y * WIDTH + x];
-
-            pixel->rgbRed   = GetRValue (color);
-            pixel->rgbGreen = GetGValue (color);
-            pixel->rgbBlue  = GetBValue (color);
-            pixel->rgbReserved = 0;
+            fps = (float) frameCount * 1000.0f / (now - lastTime);
+            frameCount = 0;
+            lastTime = now;
         }
-    }
 
-    txEnd ();
+        // вывод FPS
+        char buf[32];
+        sprintf(buf, "FPS: %.1f", fps);
+        //txSetColor(RGB(255,255,255));
+        //txSelectFont("Arial", 20);
+        txTextOut(0, 0, buf);
+        //txSleep (50);
+    }
+    
     return 0;
-}
-
-
-COLORREF GetColor (int iteration)
-{
-    if (iteration == MAX_ITERATION)
-    {
-        return RGB (0, 0, 0); // черный внутри множества
-    }
-    else
-    {
-        int bright = iteration % 8;
-        int gray = 70 + bright * 20;
-        return RGB (gray, gray, gray);
-    }
 }
