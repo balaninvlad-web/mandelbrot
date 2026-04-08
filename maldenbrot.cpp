@@ -23,10 +23,10 @@ void DrawFractal ()
 
     for (int y = 0; y < HEIGHT; y++)
     {
-        float c_im = Y_MAX - y * dy;
+        float c_im = Y_MAX - (float) y * dy;
         for (int x = 0; x < WIDTH; x++)
         {
-            float c_re = X_MIN + x * dx;
+            float c_re = X_MIN + (float) x * dx;
             
             float z_re = 0, z_im = 0;
             int iter = 0;
@@ -42,7 +42,7 @@ void DrawFractal ()
             // Цвет: оттенки серого
             int color = iter == 100 ? 0 : 50 + iter * 2;
             RGBQUAD* p = &buf[y*WIDTH + x];
-            p->rgbRed = p->rgbGreen = p->rgbBlue = color;
+            p->rgbRed = p->rgbGreen = p->rgbBlue = (unsigned char) color;
         }
     }
     txEnd ();
@@ -53,7 +53,7 @@ int main ()
     txCreateWindow (WIDTH, HEIGHT);
 
     int frameCount = 0;
-    float fps = 0;
+    int fps = 0;
     DWORD lastTime = GetTickCount ();
     
     while (!txGetAsyncKeyState (VK_ESCAPE))
@@ -79,17 +79,15 @@ int main ()
         DWORD now = GetTickCount ();
         if (now - lastTime >= 1000)
         {
-            fps = (float) frameCount * 1000.0f / (now - lastTime);
+            fps = frameCount * 1000 / (now - lastTime);
             frameCount = 0;
             lastTime = now;
         }
 
         // вывод FPS
-        char buf[32];
-        sprintf(buf, "FPS: %.1f", fps);
-        //txSetColor(RGB(255,255,255));
-        //txSelectFont("Arial", 20);
-        txTextOut(0, 0, buf);
+        char buf[32] = {};
+        sprintf (buf, "%.1d", fps);
+        txTextOut (0, 0, buf);
         //txSleep (50);
     }
     
