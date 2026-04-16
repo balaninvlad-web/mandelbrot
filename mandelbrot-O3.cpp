@@ -1,8 +1,8 @@
 #include <TXLib.h>
 #include <math.h>
 
-#define WIDTH   800
-#define HEIGHT  600
+#define WIDTH ((float)  800)
+#define HEIGHT ((float) 600)
 
 int main ()
 {
@@ -11,14 +11,14 @@ int main ()
     txBegin ();
     RGBQUAD* graphBuf = txVideoMemory ();
 
-    const float r2Max = 100.0f;
+    const float r2Max = 4.0f;
     const int   nMax  = 256;
     double dx = 1.0f / WIDTH, dy = 1.0f / HEIGHT;
-    float xC = 0.f, yC = 0.f, scale = 1.f;
+    float xC = 0.f, yC = 0.f, scale = 4.f;
     
-    DWORD lastTime = GetTickCount ();
+    //DWORD lastTime = GetTickCount ();
     float fps = 0;
-    int frameCount = 0;
+    //int frameCount = 0;
 
     for (;;)
     {
@@ -58,8 +58,8 @@ int main ()
                     for (int i = 0; i < 8; i++) if (r2[i] <= r2Max) cmp[i] = 1;
 
                     int mask = 0;
-                    for (int i = 0; i < 8; i++) mask |= cmp[i] << i;
-                    if(!mask) break;
+                    for (int i = 0; i < 8; i++) mask |= (cmp[i] << i);
+                    if (!mask) break;
 
                     for (int i = 0; i < 8; i++) xArr[i] = x2[i] - y2[i] + x0Arr[i];
                     for (int i = 0; i < 8; i++) yArr[i] = xy[i] + xy[i] + y0Arr[i];
@@ -83,15 +83,21 @@ int main ()
                 int offset = (HEIGHT - 1 - y) * WIDTH + x;
                 for (int i = 0; i < 8; ++i)
                     graphBuf[offset + i] = color[i];
-        
             }
         }
-        DWORD now = GetTickCount ();
-        float dt = ((float) now - (float) lastTime) / 1000.0f;
-        if (dt > 0) fps = 0.9f * fps + 0.1f * (1.0f / dt);
-        lastTime = now;
+        
+        static int frameCount = 0;
+        static DWORD lastFpsTime = 0;
+        frameCount++;
+        DWORD now = GetTickCount();
+        if (now - lastFpsTime >= 1000) 
+        {
+            fps = frameCount * 1000.0f / (now - lastFpsTime);
+            frameCount = 0;
+            lastFpsTime = now;
+        }
 
-        char fpsBuf[20] = {};
+        char fpsBuf[10] = {};
         sprintf (fpsBuf, "%.1f", fps);
 
         txSetColor (TX_WHITE);
