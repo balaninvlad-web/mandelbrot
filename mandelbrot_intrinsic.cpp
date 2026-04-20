@@ -194,13 +194,14 @@ int main ()
     BENCHMARK
     (
         // Сохранение результатов
-        FILE* f = fopen("bench_avx2.csv", "w");
-        if (f) {
+        FILE* f = fopen ("bench_avx2.csv", "w");
+        if (f) 
+        {
             for (int i = 0; i < NUM_OF_TESTS; i++)
-                fprintf(f, "%llu\n", cycles[i]);
-            fclose(f);
+                fprintf (f, "%llu\n", cycles[i]);
+            fclose (f);
         }
-        free(offBuf);
+        free (offBuf);
     )
 
     return 0;
