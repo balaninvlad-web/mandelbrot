@@ -27,7 +27,7 @@ int main ()
 {
     BENCHMARK(const int   NUM_OF_TESTS = 10;)      // количество замеров
     BENCHMARK(const int   WARMUP_TESTS = 3;)       // прогревочных кадров
-    BENCHMARK(const int   INNER_FRAMES = 5;)       // кадров за один замер
+    BENCHMARK(const int   INNER_FRAMES = 4000;)    // кадров за один замер
 
     __m256 r2Max = _mm256_set1_ps (4.0f);
     __m256 arr4add = _mm256_set_ps (7, 6, 5, 4 ,3, 2, 1, 0);
@@ -194,7 +194,7 @@ int main ()
     BENCHMARK
     (
         // Сохранение результатов
-        FILE* f = fopen ("bench_avx2.csv", "w");
+        FILE* f = fopen ("bench_avx2-O3.csv", "w");
         if (f) 
         {
             for (int i = 0; i < NUM_OF_TESTS; i++)

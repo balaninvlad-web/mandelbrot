@@ -69,7 +69,7 @@ int main ()
     (
         const int NUM_OF_TESTS  = 10;
         const int WARMUP_TESTS  = 3;
-        const int INNER_FRAMES  = 5;
+        const int INNER_FRAMES  = 400;
     )
 
     SIMPLE_MODE
@@ -88,7 +88,7 @@ int main ()
         if (!offBuf) return 1;
         unsigned long long cycles[NUM_OF_TESTS] = {};
     )
-    
+
     for (SIMPLE_MODE ( ; ; )
          BENCHMARK (int curTest = 0; curTest < NUM_OF_TESTS; curTest++))
     {
@@ -149,7 +149,7 @@ int main ()
     BENCHMARK
     (
         // Сохранение результатов
-        FILE* f = fopen ("bench_simple.csv", "w");
+        FILE* f = fopen ("bench_simple-O0.csv", "w");
         if (f) 
         {
             for (int i = 0; i < NUM_OF_TESTS; i++)

@@ -26,7 +26,7 @@ int main ()
 {
     BENCHMARK (const int   NUM_OF_TESTS = 10;)
     BENCHMARK (const int   WARMUP_TESTS = 3;)
-    BENCHMARK (const int   INNER_FRAMES = 5;)
+    BENCHMARK (const int   INNER_FRAMES = 400;)
 
     const float r2Max = 4.0f;
     const int   nMax  = 256;
@@ -156,7 +156,7 @@ int main ()
     BENCHMARK
     (
         // Сохранение результатов
-        FILE* f = fopen ("bench_quad.csv", "w");
+        FILE* f = fopen ("bench_quad-O3.csv", "w");
         if (f) 
         {
             for (int i = 0; i < NUM_OF_TESTS; i++)
