@@ -158,8 +158,8 @@ void compute_mandelbrot_quad(float xC, float yC, float scale, RGBQUAD* buffer)
 
 ## Использованная литература
 
-1. **Intel Corporation. Intel® Intrinsics Guide** [Электронный ресурс]. – Режим доступа: [https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html)
+1. **Intel Corporation. Intel® Intrinsics Guide** [https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html)
 
-3. **Compiler Explorer (godbolt.org)** [Электронный ресурс]. – Режим доступа: [https://godbolt.org](https://godbolt.org)
+3. **Compiler Explorer (godbolt.org)** [https://godbolt.org](https://godbolt.org)
 
-6. **FinalWire Ltd. AIDA64 Extreme** [Электронный ресурс]. – Режим доступа: [https://www.aida64.com](https://www.aida64.com)
+6. **FinalWire Ltd. AIDA64 Extreme**  [https://www.aida64.com](https://www.aida64.com)
